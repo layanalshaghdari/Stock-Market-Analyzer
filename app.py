@@ -1,3 +1,17 @@
+"""
+Stock Market Analyzer - Enhanced version
+=========================================
+A comprehensive stock analysis tool featuring
+-Real-time stock data from Yahoo Finance
+-Interactive price charts with technical indicators 
+-Moving Averages (MA50 & MA200)
+-RSI (Relative Strength Index)
+-MACD (Moving Average Convergence Divergence)
+-Multi-stock comparison
+-Trading signals and analysis
+Layan Alshaghdari
+courses: CSC 1980/2280
+"""
 import streamlit as st
 import yfinance as yf
 import plotly.graph_objects as go
@@ -37,9 +51,34 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 def calculate_moving_average(data, window):
+    """
+    Calculate Simple Moving Average (SMA)
+    Parameters:
+    data : DataFrame 
+        Stock price data
+    window : int
+        Number of periods for average (e.g, 50, 200)
+    Returns:
+    --------
+    Series
+        Moving average values
+    """
     return data['Close'].rolling(window=window).mean()
 
 def calculate_rsi(data, periods=14):
+    """
+    Calculate Relative Strength Index (RSI)
+    RSI is a momentum in dicator that measures the speed and magnitude of price changes.Values above 70 indicate overbought conditions, while values below 30 indicate oversold conditions.
+    Parameters:
+    data : DataFrame
+        Stock price data
+    periods : int
+        Number of periods for RSI calculation (default is 14)   
+    Returns:
+    -------
+    Series
+        RSI values (0-100)
+    """
     delta = data['Close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=periods).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=periods).mean()
@@ -48,6 +87,23 @@ def calculate_rsi(data, periods=14):
     return rsi
 
 def calculate_macd(data, fast=12, slow=26, signal=9):
+    """
+    Calculate Moving Average Convergence Divergence (MACD)
+    MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+    Parameters:
+    data : DataFrame
+        Stock price data
+    fast : int
+        Period for the fast EMA (default is 12)
+    slow : int
+        Period for the slow EMA (default is 26)
+    signal : int
+        Period for the signal line EMA (default is 9)
+    Returns:
+    -------
+    Tuple of Series
+        MACD line, Signal line, Histogram values
+    """
     ema_fast = data['Close'].ewm(span=fast, adjust=False).mean()
     ema_slow = data['Close'].ewm(span=slow, adjust=False).mean()
     macd = ema_fast - ema_slow
